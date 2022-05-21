@@ -4,10 +4,41 @@ using namespace std;
 
 void Pivoteia(float *tableau[], int n, int m, int linha, int coluna)
 {
+    float d = 0;
+
+    if (tableau[linha][coluna] == 0)
+        return;
 
     for (int i = 0; i < n; i++)
     {
-        
+        if (tableau[i][coluna] != 0)
+        {
+            d = tableau[i][coluna] / tableau[linha][coluna];
+            if (i == linha)
+            {
+                d = 1 / tableau[linha][coluna];
+                for (int j = 0; j < m; j++)
+                {
+                    tableau[i][j] = tableau[i][j] * d;
+                }
+            }
+            else
+            {
+                for (int j = 0; j < m; j++)
+                {
+                    if (tableau[linha][j] != 0)
+                        tableau[i][j] = tableau[i][j] - tableau[linha][j] * d;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            cout << tableau[i][j] << "   ";
+        }
+        cout << endl;
     }
 }
 
@@ -54,8 +85,24 @@ float *SimplexAuxiliar(float *tableau[], int n, int m)
     }
 }
 
-void Simplex(float *tableau[], int *baseViavel, int n, int m)
+void Positiva_B(float *tableau[], int n, int m)
 {
+    for (int i = 0; i < n; i++)
+    {
+        if (tableau[i][m - 1] < 0)
+        {
+            for (int j = 0; j < m; j++)
+            {
+                if (tableau[i][j] != 0)
+                    tableau[i][j] = -tableau[i][j];
+            }
+        }
+    }
+}
+
+void Simplex(float *tableau[], int n, int m)
+{
+    Positiva_B(tableau, n, m);
     SimplexAuxiliar(tableau, n, m);
 }
 
@@ -98,20 +145,5 @@ int main()
         }
     }
 
-    /*for (int i = 0; i < n + 1; i++)
-    {
-        for (int j = 0; j < n + m + 1; j++)
-        {
-            cout << tableau[i][j] << "   ";
-        }
-        cout << endl;
-    }*/
-
-    int *baseViavel = new int[n + m + 1];
-    for (int i = 0; i < n + m + 1; i++)
-    {
-        baseViavel[i] = -1;
-    }
-
-    Simplex(tableau, baseViavel, n + 1, n + m + 1);
+    Simplex(tableau, n + 1, n + m + 1);
 }
