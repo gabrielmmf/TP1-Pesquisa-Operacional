@@ -1,6 +1,19 @@
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
+
+void ImprimeTableau(float *tableau[], int n, int m)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            cout << setw(6) << tableau[i][j] << "  ";
+        }
+        cout << endl;
+    }
+}
 
 void Pivoteia(float *tableau[], int n, int m, int linha, int coluna)
 {
@@ -34,7 +47,24 @@ void Pivoteia(float *tableau[], int n, int m, int linha, int coluna)
     }
 }
 
-void *MontaAuxiliar(float *auxiliar[], float *tableau[], int n, int m, int *bases)
+int EncontraMenorRazao(float *tableau[], int n, int m, int coluna)
+{
+    int indice_b = m - 1;
+    float val_min = -1;
+    int indice_min = -1;
+    for (int i = 1; i < n; i++)
+    {
+        if(tableau[i][coluna]>0){
+            if (val_min < 0 or tableau[i][indice_b]/tableau[i][coluna] < val_min){
+                val_min = tableau[i][indice_b]/tableau[i][coluna];
+                indice_min = i;
+            }
+        }
+    }
+    return indice_min;
+}
+
+void MontaAux(float *auxiliar[], float *tableau[], int n, int m)
 {
 
     for (int i = 0; i < n; i++)
@@ -54,7 +84,6 @@ void *MontaAuxiliar(float *auxiliar[], float *tableau[], int n, int m, int *base
     for (int i = 1; i < n; i++)
     {
         auxiliar[i][m - 2 + i] = 1;
-        bases[i] = m - 2 + i;
         for (int j = 0; j < m - 1; j++)
         {
             auxiliar[i][j] = tableau[i][j];
@@ -62,32 +91,9 @@ void *MontaAuxiliar(float *auxiliar[], float *tableau[], int n, int m, int *base
         auxiliar[i][m - 2 + n] = tableau[i][m - 1];
     }
 
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n + m - 1; j++)
-        {
-            cout << auxiliar[i][j] << "   ";
-        }
-        cout << endl;
-    }
-
     for (int i = 1; i < n; i++)
     {
         Pivoteia(auxiliar, n, m + n - 1, i, m - 2 + i);
-    }
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n + m - 1; j++)
-        {
-            cout << auxiliar[i][j] << "   ";
-        }
-        cout << endl;
-    }
-
-    for (int i = 0; i < n; i++)
-    {
-        cout << "Base[" << i << "] = " << bases[i] << endl;
     }
 }
 
@@ -106,60 +112,46 @@ void Positiva_B(float *tableau[], int n, int m)
     }
 }
 
-void SimplexCanonica(float *tableau[], int n, int m, int *bases, int indice_min)
+void SimplexCanonica(float *tableau[], int n, int m)
 {
-    float razao_min = -1;
-    int i_min = -1;
-
-    if (tableau[1][m - 1] / tableau[1][indice_min] >= 0)
+    int indice_min;
+    int i = 1;
+    for (int j = n - 1; j < m - 2; j++)
     {
-        razao_min = tableau[1][m - 1] / tableau[1][indice_min];
-        i_min = 1;
-    }
-
-    for (int i = 1; i < n; i++)
-    {
-        if (tableau[i][m - 1] / tableau[i][indice_min] < razao_min || (tableau[i][m - 1] / tableau[i][indice_min] > 0 && razao_min < 0))
+        if (tableau[0][j] < 0)
         {
-            i_min = i;
-            razao_min = tableau[i][m - 1] / tableau[i][indice_min];
+            indice_min = EncontraMenorRazao(tableau, n, m, j);
+            Pivoteia(tableau, n, m, EncontraMenorRazao(tableau, n, m, j), j);
+            cout << "Pivoteamento " << i << endl;
+            ImprimeTableau(tableau, n, m);
+            j = n-1;
+            i++;
         }
-    }
-    if(razao_min >=0){
-        Pivoteia(tableau, n, m, i_min, indice_min);
-    }
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < m; j++)
-        {
-            cout << tableau[i][j] << "   ";
-        }
-        cout << endl;
     }
 }
 
 void Simplex(float *tableau[], int n, int m)
 {
     float **auxiliar = new float *[n];
-    int *bases = new int[n];
+    int n_auxiliar = n;
+    int m_auxiliar = m + n - 1;
+    cout << "tableau inicial: " << endl;
+    ImprimeTableau(tableau, n, m);
     Positiva_B(tableau, n, m);
-    MontaAuxiliar(auxiliar, tableau, n, m, bases);
-
-    int indice_min = n - 1;
-    float val_min = auxiliar[0][indice_min];
-    do
-    {
-        for (int i = n; i < m - 1; i++)
-        {
-            if (auxiliar[0][i] < val_min)
-            {
-                indice_min = i;
-                val_min = auxiliar[0][indice_min];
-            }
+    cout << "tableau b positivo: " << endl;
+    ImprimeTableau(tableau, n, m);
+    cout << "auxiliar pivoteada: " << endl;
+    MontaAux(auxiliar, tableau, n, m);
+    ImprimeTableau(auxiliar, n_auxiliar, m_auxiliar);
+    SimplexCanonica(auxiliar, n_auxiliar, m_auxiliar);
+    if(auxiliar[0][m_auxiliar-1] < 0){
+        cout << "inviavel" << endl;
+        for (int i = 0; i<n-1; i++){
+            cout << auxiliar[0][i] << " ";
         }
-        SimplexCanonica(auxiliar, n, m + n - 1, bases, indice_min);
-    } while (val_min < 0);
+        cout << endl;
+        return;
+    }
 }
 
 int main()
