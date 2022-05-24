@@ -3,20 +3,21 @@
 #define EPS 0.00000001
 using namespace std;
 
-void ImprimeTableau(double *tableau[], int n, int m)
+/*void ImprimeTableau(double *tableau[], int n, int m)
 {
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < m; j++)
         {
-            cout << setw(7) << tableau[i][j] << "  ";
-            if(j==n-2 or j == m-2){
+            cout << tableau[i][j] << "  ";
+            if (j == n - 2 or j == m - 2)
+            {
                 cout << "|";
             }
         }
         cout << endl;
     }
-}
+}*/
 
 void PreparaPivot(double *tableau[], int n, int m, int linha, int coluna)
 {
@@ -86,10 +87,10 @@ int EncontraMenorRazao(double *tableau[], int n, int m, int coluna)
             }
         }
     }
-    if (indice_min != -1)
+   /* if (indice_min != -1)
     {
         cout << "Menor razão encontrada: " << tableau[indice_min][indice_b] << "/" << tableau[indice_min][coluna] << endl;
-    }
+    }*/
     return indice_min;
 }
 
@@ -181,9 +182,9 @@ void CanonizaComAuxiliar(double *tableau[], double *auxiliar[], int n, int m)
         base = false;
         for (int i = 0; i < n; i++)
         {
-            if (abs(auxiliar[i][j]-1) <= EPS || abs(auxiliar[i][j]) <= EPS)
+            if (abs(auxiliar[i][j] - 1) <= EPS || abs(auxiliar[i][j]) <= EPS)
             {
-                if (abs(auxiliar[i][j]-1) <= EPS)
+                if (abs(auxiliar[i][j] - 1) <= EPS)
                 {
                     soma_1++;
                     indice_1 = i;
@@ -213,8 +214,8 @@ void CanonizaComAuxiliar(double *tableau[], double *auxiliar[], int n, int m)
 
         if (base)
         {
-            cout << "Coluna " << j << " É básica: "
-                 << "Pivotear " << auxiliar[indice_1][j] << " Correspondente Original: " << tableau[indice_1][j] << endl;
+           // cout << "Coluna " << j << " É básica: "
+          //       << "Pivotear " << auxiliar[indice_1][j] << " Correspondente Original: " << tableau[indice_1][j] << endl;
             Pivoteia(tableau, n, m, indice_1, j);
         }
     }
@@ -230,9 +231,9 @@ void SimplexCanonica(double *tableau[], int n, int m, int *indice_ilimitada)
             indice_min = EncontraMenorRazao(tableau, n, m, j);
             if (indice_min > 0)
             {
-                cout << "Pivoteando coluna" << j << endl;
+                //cout << "Pivoteando coluna" << j << endl;
                 Pivoteia(tableau, n, m, indice_min, j);
-                ImprimeTableau(tableau, n, m);
+                //ImprimeTableau(tableau, n, m);
                 j = n - 2;
             }
             else
@@ -246,11 +247,12 @@ void SimplexCanonica(double *tableau[], int n, int m, int *indice_ilimitada)
 
 double *EncontraCertificado(double *tableau[], int n, int m, int *indice_ilimitada)
 {
-    double *certificado = new double [m-n]; // certificado[0] = i-n+1
-    for (int i = 0; i< m-n; i++){
+    double *certificado = new double[m - n]; // certificado[0] = i-n+1
+    for (int i = 0; i < m - n; i++)
+    {
         certificado[i] = 0;
     }
-    certificado[*indice_ilimitada-n+1] = 1;
+    certificado[*indice_ilimitada - n + 1] = 1;
     int soma_0 = 0;
     int soma_1 = 0;
     int indice_1 = -1;
@@ -264,9 +266,9 @@ double *EncontraCertificado(double *tableau[], int n, int m, int *indice_ilimita
         base = false;
         for (int i = 0; i < n; i++)
         {
-            if (abs(tableau[i][j]-1)<= EPS || abs(tableau[i][j]) <= EPS)
+            if (abs(tableau[i][j] - 1) <= EPS || abs(tableau[i][j]) <= EPS)
             {
-                if (abs(tableau[i][j]-1) <= EPS)
+                if (abs(tableau[i][j] - 1) <= EPS)
                 {
                     soma_1++;
                     indice_1 = i;
@@ -296,68 +298,134 @@ double *EncontraCertificado(double *tableau[], int n, int m, int *indice_ilimita
 
         if (base)
         {
-            certificado[j-n+1] = -(tableau[indice_1][*indice_ilimitada]);
+            certificado[j - n + 1] = -(tableau[indice_1][*indice_ilimitada]);
         }
     }
     return certificado;
-    
+}
+
+double *EncontraSolucao(double *tableau[], int n, int m)
+{
+    double *solucao = new double[m - n];
+    for (int i = 0; i < m - n; i++)
+    {
+        solucao[i] = 0;
+    }
+    int soma_0 = 0;
+    int soma_1 = 0;
+    int indice_1 = -1;
+    bool base = false;
+
+    for (int j = n - 1; j < m - 1; j++)
+    {
+        soma_0 = 0;
+        soma_1 = 0;
+        indice_1 = -1;
+        base = false;
+        for (int i = 0; i < n; i++)
+        {
+            if (abs(tableau[i][j] - 1) <= EPS || abs(tableau[i][j]) <= EPS)
+            {
+                if (abs(tableau[i][j] - 1) <= EPS)
+                {
+                    soma_1++;
+                    indice_1 = i;
+                }
+                else
+                {
+                    soma_0++;
+                }
+            }
+            else
+            {
+                base = false;
+            }
+        }
+
+        if (soma_0 == n - 1 and soma_1 == 1)
+        {
+            base = true;
+        }
+        else
+        {
+            base = false;
+        }
+
+        if (tableau[0][j] != 0)
+            base = false;
+
+        if (base)
+        {
+            solucao[j - n + 1] = tableau[indice_1][m - 1];
+        }
+    }
+    return solucao;
 }
 
 void Simplex(double *tableau[], int n, int m)
 {
-    cout << "tableau inicial: " << endl;
-    ImprimeTableau(tableau, n, m);
+    //ImprimeTableau(tableau, n, m);
 
     double **tableauFolgas = new double *[n];
     adicionaFolga(tableauFolgas, tableau, n, m);
     int m_folga = m + n - 1;
-    cout << "Tableau com folgas: " << endl;
-    ImprimeTableau(tableauFolgas, n, m_folga);
+    //cout << "Tableau com folgas: " << endl;
+    //ImprimeTableau(tableauFolgas, n, m_folga);
 
     double **auxiliar = new double *[n];
     int n_auxiliar = n;
     int m_auxiliar = m_folga + n - 1;
     Positiva_B(tableauFolgas, n, m_folga);
-    cout << "tableau b positivo:     " << endl;
-    ImprimeTableau(tableauFolgas, n, m_folga);
+    //cout << "tableau b positivo:     " << endl;
+    //ImprimeTableau(tableauFolgas, n, m_folga);
     MontaAux(auxiliar, tableauFolgas, n, m_folga);
-    cout << "auxiliar canonizada: " << endl;
-    ImprimeTableau(auxiliar, n_auxiliar, m_auxiliar);
+    //cout << "auxiliar canonizada: " << endl;
+    //ImprimeTableau(auxiliar, n_auxiliar, m_auxiliar);
 
     int *indice_ilimitada = new int();
     *indice_ilimitada = -1;
-    cout << "Executando simplex auxiliar" << endl;
+    //cout << "Executando simplex auxiliar" << endl;
     SimplexCanonica(auxiliar, n_auxiliar, m_auxiliar, indice_ilimitada);
-    cout << "Auxiliar otimizada: " << endl;
-    ImprimeTableau(auxiliar, n_auxiliar, m_auxiliar);
-    cout << endl
-         << "Valor Objetivo Auxiliar Otimizada: " << auxiliar[0][m_auxiliar - 1] << endl;
+    //cout << "Auxiliar otimizada: " << endl;
+    //ImprimeTableau(auxiliar, n_auxiliar, m_auxiliar);
+    //cout << endl
+    //     << "Valor Objetivo Auxiliar Otimizada: " << auxiliar[0][m_auxiliar - 1] << endl;
     if (abs(auxiliar[0][m_auxiliar - 1]) < 0.000000001)
     {
-        cout << "Ótima ou ilimitada" << endl;
-        cout << "Canonizada com auxiliar: " << endl;
         CanonizaComAuxiliar(tableauFolgas, auxiliar, n, m_folga);
-        ImprimeTableau(tableauFolgas, n, m_folga);
+        //ImprimeTableau(tableauFolgas, n, m_folga);
         *indice_ilimitada = -1;
         SimplexCanonica(tableauFolgas, n, m_folga, indice_ilimitada);
+        double *solucao = EncontraSolucao(tableauFolgas, n, m_folga);
         if (*indice_ilimitada > -1)
         {
             double *certificado = EncontraCertificado(tableauFolgas, n, m_folga, indice_ilimitada);
-            cout << "PL Ilimitada " << endl;
-            cout << "Coluna Ilimitada: " << *indice_ilimitada << endl;
-            cout << "Certificado: " << endl;
-            for (int i = 0; i<m_folga-n; i++){
+            cout << "ilimitada " << endl;
+            for (int i = 0; i < m-n; i++)
+            {
+                cout << solucao[i] << " ";
+            }
+            cout << endl;
+            for (int i = 0; i < m-n; i++)
+            {
                 cout << certificado[i] << " ";
             }
             cout << endl;
-
-            
         }
         else
         {
-            cout << endl
-                 << "PL Ótima" << endl
-                 << "Valor Objetivo: " << tableauFolgas[0][m_folga - 1] << endl;
+            cout << "otima" << endl
+                 << tableauFolgas[0][m_folga - 1] << endl;
+            for (int i = 0; i < m-n; i++)
+            {
+                cout << solucao[i] << " ";
+            }
+            cout << endl;
+            for (int i = 0; i < n-1; i++)
+            {
+                cout << tableauFolgas[0][i] << " ";
+            }
+            cout << endl;
         }
     }
     else
