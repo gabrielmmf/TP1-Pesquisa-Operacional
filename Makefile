@@ -1,14 +1,12 @@
 CC = g++
 CXXFLAGS = -std=c++11 -g -Wall
-#CXXFLAGS = -std=c++11 -O3 -Wall
 
-# folders
+
 INCLUDE_FOLDER = ./include/
 BIN_FOLDER = ./
 OBJ_FOLDER = ./obj/
 SRC_FOLDER = ./src/
 
-# all sources, objs, and header files
 MAIN = Main
 TARGET = tp01.out
 SRC = $(wildcard $(SRC_FOLDER)*.cpp)
@@ -21,4 +19,4 @@ build: $(OBJ)
 	$(CC) $(CXXFLAGS) -o $(BIN_FOLDER)$(TARGET) $(OBJ)
 
 clean:
-	@rm -rf $(OBJ_FOLDER)* $(BIN_FOLDER)*
+	@rm -rf $(OBJ_FOLDER)*

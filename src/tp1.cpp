@@ -214,8 +214,6 @@ void CanonizaComAuxiliar(double *tableau[], double *auxiliar[], int n, int m)
 
         if (base)
         {
-           // cout << "Coluna " << j << " É básica: "
-          //       << "Pivotear " << auxiliar[indice_1][j] << " Correspondente Original: " << tableau[indice_1][j] << endl;
             Pivoteia(tableau, n, m, indice_1, j);
         }
     }
@@ -231,9 +229,7 @@ void SimplexCanonica(double *tableau[], int n, int m, int *indice_ilimitada)
             indice_min = EncontraMenorRazao(tableau, n, m, j);
             if (indice_min > 0)
             {
-                //cout << "Pivoteando coluna" << j << endl;
                 Pivoteia(tableau, n, m, indice_min, j);
-                //ImprimeTableau(tableau, n, m);
                 j = n - 2;
             }
             else
@@ -364,36 +360,22 @@ double *EncontraSolucao(double *tableau[], int n, int m)
 
 void Simplex(double *tableau[], int n, int m)
 {
-    //ImprimeTableau(tableau, n, m);
-
     double **tableauFolgas = new double *[n];
     adicionaFolga(tableauFolgas, tableau, n, m);
     int m_folga = m + n - 1;
-    //cout << "Tableau com folgas: " << endl;
-    //ImprimeTableau(tableauFolgas, n, m_folga);
 
     double **auxiliar = new double *[n];
     int n_auxiliar = n;
     int m_auxiliar = m_folga + n - 1;
     Positiva_B(tableauFolgas, n, m_folga);
-    //cout << "tableau b positivo:     " << endl;
-    //ImprimeTableau(tableauFolgas, n, m_folga);
     MontaAux(auxiliar, tableauFolgas, n, m_folga);
-    //cout << "auxiliar canonizada: " << endl;
-    //ImprimeTableau(auxiliar, n_auxiliar, m_auxiliar);
 
     int *indice_ilimitada = new int();
     *indice_ilimitada = -1;
-    //cout << "Executando simplex auxiliar" << endl;
     SimplexCanonica(auxiliar, n_auxiliar, m_auxiliar, indice_ilimitada);
-    //cout << "Auxiliar otimizada: " << endl;
-    //ImprimeTableau(auxiliar, n_auxiliar, m_auxiliar);
-    //cout << endl
-    //     << "Valor Objetivo Auxiliar Otimizada: " << auxiliar[0][m_auxiliar - 1] << endl;
     if (abs(auxiliar[0][m_auxiliar - 1]) < 0.000000001)
     {
         CanonizaComAuxiliar(tableauFolgas, auxiliar, n, m_folga);
-        //ImprimeTableau(tableauFolgas, n, m_folga);
         *indice_ilimitada = -1;
         SimplexCanonica(tableauFolgas, n, m_folga, indice_ilimitada);
         double *solucao = EncontraSolucao(tableauFolgas, n, m_folga);
@@ -446,6 +428,7 @@ int main()
     int m = 0;
     cin >> n;
     cin >> m;
+    cout << setprecision(7) << fixed;
 
     double **tableau = new double *[n + 1];
     for (int i = 0; i < n + 1; i++)
